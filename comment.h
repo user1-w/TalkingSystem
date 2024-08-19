@@ -19,6 +19,9 @@
 #define regtp 1
 #define logtp 2
 #define QUNLIAO 4
+#define ADD_FRIEND 6
+#define VIEW_HISTORY 7
+
 
 
 #define OK 10
@@ -43,6 +46,19 @@ typedef struct ship
     char house[1024];
     int sd;
 } SHIP;
+
+typedef struct friend_request {
+    char from[128];
+    char to[128];
+} FRIEND_REQ;
+
+typedef struct chat_message {
+    char from[128];
+    char to[128];
+    char content[1024];
+    time_t timestamp;
+} CHAT_MSG;
+
 
 void regs(SHIP ship,int sd);//服务器注册判断函数
 void lgs(SHIP ship,int sd);//服务器登录判断函数
