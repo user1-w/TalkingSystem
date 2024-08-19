@@ -62,6 +62,85 @@ void QUnLiao(SHIP ship,int sd)
     }
 }
 
+void save_chat_history(CHAT_MSG *msg)
+{
+    int fd = open("chat_history.txt", O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd >= 0)
+    {
+        char buffer[1024];
+        char time_str[64];
+        struct tm *timeinfo = localtime(&msg->timestamp);
+        strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", timeinfo);
+        int len = snprintf(buffer, sizeof(buffer), "[%s] %s to %s: %s\n", time_str, msg->from, msg->to, msg->content);
+        write(fd, buffer, len);
+        close(fd);
+    }
+}
+
+void read_chat_history(const char *username, char *history)
+{
+    int fd = open("chat_history.txt", O_RDONLY);
+    if (fd >= 0)
+    {
+        char line[1024];
+        int bytes_read;
+        int pos = 0;
+        while ((bytes_read = read(fd, line + pos, sizeof(line) - pos - 1)) > 0)
+        {
+            pos += bytes_read;
+            line[pos] = '\0';
+            
+            char *start = line;
+            char *end;
+            while ((end = strchr(start, '\n')) != NULL)
+            {
+                *end = '\0';
+                if (strstr(start, username))
+                {
+                    strcat(history, start);
+                    strcat(history, "\n");
+                }
+                start = end + 1;
+            }
+            
+            if (start < line + pos)
+            {
+                memmove(line, start, line + pos - start);
+                pos = line + pos - start;
+            }
+            else
+            {
+                pos = 0;
+            }
+        }
+        close(fd);
+    }
+}
+void AddFriend(SHIP ship, int sd)
+{
+    FRIEND_REQ *req = (FRIEND_REQ *)ship.house;
+    int target_sd = find_user_sd(req->to);
+    if (target_sd > 0)
+    {
+        write(target_sd, &ship, sizeof(SHIP));
+        ship.type = OK;
+    }
+    else
+    {
+        ship.type = NO;
+    }
+    write(sd, &ship, sizeof(SHIP));
+}
+
+void ViewHistory(SHIP ship, int sd)
+{
+    // 从文件中读取聊天记录
+    char history[1024] = {0};
+    read_chat_history(ship.house, history);
+    strcpy(ship.house, history);
+    write(sd, &ship, sizeof(SHIP));
+}
+
 void lgs(SHIP ship, int sd)
 {
     LOG *dl = (LOG *)ship.house;
