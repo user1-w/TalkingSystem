@@ -65,6 +65,18 @@ int main(int argc, const char argv[])
                             {
                                 QUnLiao(ship,i);
                             }
+                            else if (ship.type == DANLIAO)
+                            {
+                                DanLiao(ship, i);
+                            }
+                            else if (ship.type == ADD_FRIEND)
+                            {
+                                AddFriend(ship, i);
+                            }
+                            else if (ship.type == VIEW_HISTORY)
+                            {
+                                ViewHistory(ship, i);
+                            }
                         }
                         else{
                             printf("error\n");
