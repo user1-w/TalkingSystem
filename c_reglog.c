@@ -81,6 +81,63 @@ void usermenu(int sd)
                 }
             }
         }
+            // ... existing code ...
+case 2:
+{
+    SHIP ship;
+    ship.type = DANLIAO;
+    printf("请输入好友名称: ");
+    scanf("%s", ship.house);
+    write(sd, &ship, sizeof(SHIP));
+    
+    pthread_t pt;
+    pthread_create(&pt, NULL, work, &sd);
+    
+    while (1)
+    {
+        CHAT_MSG msg;
+        printf("输入消息 (输入 'quit' 退出): ");
+        scanf("%s", msg.content);
+        if (strcmp(msg.content, "quit") == 0)
+        {
+            pthread_cancel(pt);
+            break;
+        }
+        strcpy(msg.to, ship.house);
+        memcpy(ship.house, &msg, sizeof(CHAT_MSG));
+        write(sd, &ship, sizeof(SHIP));
+    }
+     }
+    break;
+    case 3:
+    {
+        SHIP ship;
+        ship.type = VIEW_HISTORY;
+        write(sd, &ship, sizeof(SHIP));
+        // 接收并显示聊天记录
+        read(sd, &ship, sizeof(SHIP));
+        printf("聊天记录:\n%s\n", ship.house);
+    }
+    break;
+    case 4:
+    {
+        SHIP ship;
+        ship.type = ADD_FRIEND;
+        printf("请输入要添加的好友名称: ");
+        scanf("%s", ship.house);
+        write(sd, &ship, sizeof(SHIP));
+        read(sd, &ship, sizeof(SHIP));
+        if (ship.type == OK)
+        {
+            printf("好友添加请求已发送\n");
+        }
+        else
+        {
+            printf("好友添加请求发送失败\n");
+        }
+    }
+    break;
+
         break;
         case 5:
             run = 0;
